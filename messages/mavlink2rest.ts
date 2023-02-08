@@ -1,5 +1,20 @@
 import type { MAVLinkType } from './mavlink2rest-enum'
 
+/**
+ * MAVLink2Rest message definition
+ */
+export interface Message {
+  /**
+   * Defines the type of the MAVLink message
+   */
+  type: MAVLinkType
+
+  /**
+   * Allow access of variable members of the MAVLink message
+   */
+  [key: string]: any // eslint-disable-line
+}
+
 // Generic interface to encapsulate multiple MAVLink messages
 export type MAVLinkMessageDictionary = Map<MAVLinkType, Message>
 
@@ -21,21 +36,6 @@ export interface Header {
    * MAVLink source system identification
    */
   system_id: number
-}
-
-/**
- * MAVLink2Rest message definition
- */
-export interface Message {
-  /**
-   * Defines the type of the MAVLink message
-   */
-  type: MAVLinkType
-
-  /**
-   * Allow access of variable members of the MAVLink message
-   */
-  [key: string]: any // eslint-disable-line
 }
 
 /**
