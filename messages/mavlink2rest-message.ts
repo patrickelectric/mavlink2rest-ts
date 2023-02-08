@@ -5575,7 +5575,7 @@ export namespace Message {
     /**
      * Severity of status. Relies on the definitions within RFC-5424..
      */
-    severity: MavSeverity
+    severity: Type<MavSeverity>
     /**
      * Status text message, without null termination character.
      */
