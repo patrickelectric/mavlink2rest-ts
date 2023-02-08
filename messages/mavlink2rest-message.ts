@@ -15,12 +15,15 @@ import type {
   CellularNetworkRadioType,
   CellularStatusFlag,
   CompMetadataType,
+  EkfStatusFlags,
   FenceBreach,
   FenceMitigate,
   GimbalDeviceFlags,
   GimbalManagerFlags,
+  GoproHeartbeatFlags,
   GpsFixType,
   LandingTargetType,
+  LimitModule,
   MavAutopilot,
   MavBatteryChargeState,
   MavBatteryFunction,
@@ -64,6 +67,7 @@ import type {
   MavType,
   MavVtolState,
   ParamAck,
+  RallyFlags,
   RtkBaselineCoordinateSystem,
   SerialControlDev,
   StorageStatus,
@@ -7879,5 +7883,1295 @@ export namespace Message {
      * Concatenation of encoded OpenDroneID messages. Shall be filled with nulls in the unused portion of the field..
      */
     messages: number[] // Array of 250 elements
+  }
+
+  /**
+   * MAVLink message ID: 150
+   * Offsets and calibrations values for hardware sensors. This makes it easier to debug the calibration process.
+   */
+  export interface SensorOffsets extends Message {
+    // Magnetometer X offset.
+    mag_ofs_x: number
+    // Magnetometer Y offset.
+    mag_ofs_y: number
+    // Magnetometer Z offset.
+    mag_ofs_z: number
+    // Magnetic declination.
+    mag_declination: number // rad
+    // Raw pressure from barometer.
+    raw_press: number
+    // Raw temperature from barometer.
+    raw_temp: number
+    // Gyro X calibration.
+    gyro_cal_x: number
+    // Gyro Y calibration.
+    gyro_cal_y: number
+    // Gyro Z calibration.
+    gyro_cal_z: number
+    // Accel X calibration.
+    accel_cal_x: number
+    // Accel Y calibration.
+    accel_cal_y: number
+    // Accel Z calibration.
+    accel_cal_z: number
+  }
+
+  /**
+   * MAVLink message ID: 151
+   * Set the magnetometer offsets
+   * Deprecated since 2014-07, replaced by MAV_CMD_PREFLIGHT_SET_SENSOR_OFFSETS
+   */
+  export interface SetMagOffsets extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Magnetometer X offset.
+    mag_ofs_x: number
+    // Magnetometer Y offset.
+    mag_ofs_y: number
+    // Magnetometer Z offset.
+    mag_ofs_z: number
+  }
+
+  /**
+   * MAVLink message ID: 152
+   * State of autopilot RAM.
+   */
+  export interface Meminfo extends Message {
+    // Heap top.
+    brkval: number
+    // Free memory.
+    freemem: number // bytes
+    // Free memory (32 bit).
+    freemem32?: number // bytes
+  }
+
+  /**
+   * MAVLink message ID: 153
+   * Raw ADC output.
+   */
+  export interface ApAdc extends Message {
+    // ADC output 1.
+    adc1: number
+    // ADC output 2.
+    adc2: number
+    // ADC output 3.
+    adc3: number
+    // ADC output 4.
+    adc4: number
+    // ADC output 5.
+    adc5: number
+    // ADC output 6.
+    adc6: number
+  }
+
+  /**
+   * MAVLink message ID: 154
+   * Configure on-board Camera Control System.
+   */
+  export interface DigicamConfigure extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Mode enumeration from 1 to N //P, TV, AV, M, etc. (0 means ignore).
+    mode: number
+    // Divisor number //e.g. 1000 means 1/1000 (0 means ignore).
+    shutter_speed: number
+    // F stop number x 10 //e.g. 28 means 2.8 (0 means ignore).
+    aperture: number
+    // ISO enumeration from 1 to N //e.g. 80, 100, 200, Etc (0 means ignore).
+    iso: number
+    // Exposure type enumeration from 1 to N (0 means ignore).
+    exposure_type_: number
+    // Command Identity (incremental loop: 0 to 255). //A command sent multiple times will be executed or pooled just once.
+    command_id: number
+    // Main engine cut-off time before camera trigger (0 means no cut-off).
+    engine_cut_off: number // ds
+    // Extra parameters enumeration (0 means ignore).
+    extra_param: number
+    // Correspondent value to given extra_param.
+    extra_value: number
+  }
+
+  /**
+   * MAVLink message ID: 155
+   * Control on-board Camera Control System to take shots.
+   */
+  export interface DigicamControl extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // 0: stop, 1: start or keep it up //Session control e.g. show/hide lens.
+    session: number
+    // 1 to N //Zoom's absolute position (0 means ignore).
+    zoom_pos: number
+    // -100 to 100 //Zooming step value to offset zoom from the current position.
+    zoom_step: number
+    // 0: unlock focus or keep unlocked, 1: lock focus or keep locked, 3: re-lock focus.
+    focus_lock: number
+    // 0: ignore, 1: shot or start filming.
+    shot: number
+    // Command Identity (incremental loop: 0 to 255)//A command sent multiple times will be executed or pooled just once.
+    command_id: number
+    // Extra parameters enumeration (0 means ignore).
+    extra_param: number
+    // Correspondent value to given extra_param.
+    extra_value: number
+  }
+
+  /**
+   * MAVLink message ID: 156
+   * Message to configure a camera mount, directional antenna, etc.
+   */
+  export interface MountConfigure extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Mount operating mode.
+    mount_mode: number // MAV_MOUNT_MODE
+    // (1 = yes, 0 = no).
+    stab_roll: number
+    // (1 = yes, 0 = no).
+    stab_pitch: number
+    // (1 = yes, 0 = no).
+    stab_yaw: number
+  }
+
+  /**
+   * MAVLink message ID: 157
+   * Message to control a camera mount, directional antenna, etc.
+   */
+  export interface MountControl extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Pitch (centi-degrees) or lat (degE7), depending on mount mode.
+    input_a: number
+    // Roll (centi-degrees) or lon (degE7) depending on mount mode.
+    input_b: number
+    // Yaw (centi-degrees) or alt (cm) depending on mount mode.
+    input_c: number
+    // If '1' it will save current trimmed position on EEPROM (just valid for NEUTRAL and LANDING).
+    save_position: number
+  }
+
+  /**
+   * MAVLink message ID: 158
+   * Message with some status from autopilot to GCS about camera or antenna mount.
+   */
+  export interface MountStatus extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Pitch.
+    pointing_a: number // cdeg
+    // Roll.
+    pointing_b: number // cdeg
+    // Yaw.
+    pointing_c: number // cdeg
+    // Extensions
+    // Mount operating mode.
+    mount_mode: number // MAV_MOUNT_MODE
+  }
+
+  /**
+   * MAVLink message ID: 160
+   * A fence point. Used to set a point when from GCS -&gt MAV. Also used to return a point from MAV -&gt GCS.
+   */
+  export interface FencePoint extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Point index (first point is 1, 0 is for return point).
+    idx: number
+    // Total number of points (for sanity checking).
+    count: number
+    // Latitude of point.
+    lat: number // deg
+    // Longitude of point.
+    lng: number // deg
+  }
+
+  /**
+   * MAVLink message ID: 161
+   * Request a current fence point from MAV.
+   */
+  export interface FenceFetchPoint extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Point index (first point is 1, 0 is for return point).
+    idx: number
+  }
+
+  /**
+   * MAVLink message ID: 163
+   * Status of DCM attitude estimator.
+   */
+  export interface Ahrs extends Message {
+    // X gyro drift estimate.
+    omegaIx: number // rad/s
+    // Y gyro drift estimate.
+    omegaIy: number // rad/s
+    // Z gyro drift estimate.
+    omegaIz: number // rad/s
+    // Average accel_weight.
+    accel_weight: number
+    // Average renormalisation value.
+    renorm_val: number
+    // Average error_roll_pitch value.
+    error_rp: number
+    // Average error_yaw value.
+    error_yaw: number
+  }
+
+  /**
+   * MAVLink message ID: 164
+   * Status of simulation environment, if used.
+   */
+  export interface Simstate extends Message {
+    // Roll angle.
+    roll: number // rad
+    // Pitch angle.
+    pitch: number // rad
+    // Yaw angle.
+    yaw: number // rad
+    // X acceleration.
+    xacc: number // m/s/s
+    // Y acceleration.
+    yacc: number // m/s/s
+    // Z acceleration.
+    zacc: number // m/s/s
+    // Angular speed around X axis.
+    xgyro: number // rad/s
+    // Angular speed around Y axis.
+    ygyro: number // rad/s
+    // Angular speed around Z axis.
+    zgyro: number // rad/s
+    // Latitude.
+    lat: number // degE7
+    // Longitude.
+    lng: number // degE7
+  }
+
+  /**
+   * MAVLink message ID: 165
+   * Status of key hardware.
+   */
+  export interface Hwstatus extends Message {
+    // Board voltage.
+    Vcc: number // mV
+    // I2C error count.
+    I2Cerr: number
+  }
+
+  /**
+   * MAVLink message ID: 166
+   * Status generated by radio.
+   */
+  export interface Radio extends Message {
+    // Local signal strength.
+    rssi: number
+    // Remote signal strength.
+    remrssi: number
+    // How full the tx buffer is.
+    txbuf: number // %
+    // Background noise level.
+    noise: number
+    // Remote background noise level.
+    remnoise: number
+    // Receive errors.
+    rxerrors: number
+    // Count of error corrected packets.
+    fixed: number
+  }
+
+  /**
+   * MAVLink message ID: 167
+   * Status of AP_Limits. Sent in extended status stream when AP_Limits is enabled.
+   */
+  export interface LimitsStatus extends Message {
+    // State of AP_Limits.
+    limits_state: number // LIMITS_STATE
+    // Time (since boot) of last breach.
+    last_trigger: number // ms
+    // Time (since boot) of last recovery action.
+    last_action: number // ms
+    // Time (since boot) of last successful recovery.
+    last_recovery: number // ms
+    // Time (since boot) of last all-clear.
+    last_clear: number // ms
+    // Number of fence breaches.
+    breach_count: number
+    // AP_Limit_Module bitfield of enabled modules.
+    mods_enabled: BitFlag<LimitModule>
+    // AP_Limit_Module bitfield of required modules.
+    mods_required: BitFlag<LimitModule>
+    // AP_Limit_Module bitfield of triggered modules.
+    mods_triggered: BitFlag<LimitModule>
+  }
+
+  /**
+   * MAVLink message ID: 168
+   * Wind estimation.
+   */
+  export interface Wind extends Message {
+    // Wind direction (that wind is coming from).
+    direction: number // deg
+    // Wind speed in ground plane.
+    speed: number // m/s
+    // Vertical wind speed.
+    speed_z: number // m/s
+  }
+
+  /**
+   * MAVLink message ID: 169
+   * Data packet, size 16.
+   */
+  export interface Data16 extends Message {
+    // Data type.
+    type_: number
+    // Data length.
+    len: number // bytes
+    // Raw data.
+    data: number // Array of 16 elements
+  }
+
+  /**
+   * MAVLink message ID: 170
+   * Data packet, size 32.
+   */
+  export interface Data32 extends Message {
+    // Data type.
+    type_: number
+    // Data length.
+    len: number // bytes
+    // Raw data.
+    data: number // Array of 32 elements
+  }
+
+  /**
+   * MAVLink message ID: 171
+   * Data packet, size 64.
+   */
+  export interface Data64 extends Message {
+    // Data type.
+    type_: number
+    // Data length.
+    len: number // bytes
+    // Raw data.
+    data: number // Array of 64 elements
+  }
+
+  /**
+   * MAVLink message ID: 172
+   * Data packet, size 96.
+   */
+  export interface Data96 extends Message {
+    // Data type.
+    type_: number
+    // Data length.
+    len: number // bytes
+    // Raw data.
+    data: number // Array of 96 elements
+  }
+
+  /**
+   * MAVLink message ID: 173
+   * Rangefinder reporting.
+   */
+  export interface Rangefinder extends Message {
+    // Distance.
+    distance: number // m
+    // Raw voltage if available, zero otherwise.
+    voltage: number // V
+  }
+
+  /**
+   * MAVLink message ID: 174
+   * Airspeed auto-calibration.
+   */
+  export interface AirspeedAutocal extends Message {
+    // GPS velocity north.
+    vx: number // m/s
+    // GPS velocity east.
+    vy: number // m/s
+    // GPS velocity down.
+    vz: number // m/s
+    // Differential pressure.
+    diff_pressure: number // Pa
+    // Estimated to true airspeed ratio.
+    EAS2TAS: number
+    // Airspeed ratio.
+    ratio: number
+    // EKF state x.
+    state_x: number
+    // EKF state y.
+    state_y: number
+    // EKF state z.
+    state_z: number
+    // EKF Pax.
+    Pax: number
+    // EKF Pby.
+    Pby: number
+    // EKF Pcz.
+    Pcz: number
+  }
+
+  /**
+   * MAVLink message ID: 175
+   * A rally point. Used to set a point when from GCS -&gt MAV. Also used to return a point from MAV -&gt GCS.
+   */
+  export interface RallyPoint extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Point index (first point is 0).
+    idx: number
+    // Total number of points (for sanity checking).
+    count: number
+    // Latitude of point.
+    lat: number // degE7
+    // Longitude of point.
+    lng: number // degE7
+    // Transit / loiter altitude relative to home.
+    alt: number // m
+
+    // Break altitude relative to home.
+    break_alt: number // m
+    // Heading to aim for when landing.
+    land_dir: number // cdeg
+    // Configuration flags.
+    flags: BitFlag<RallyFlags>
+  }
+
+  /**
+   * MAVLink message ID: 176
+   * Request a current rally point from MAV. MAV should respond with a RALLY_POINT message. MAV should not respond if the request is invalid.
+   */
+  export interface RallyFetchPoint extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Point index (first point is 0).
+    idx: number
+  }
+
+  /**
+   * MAVLink message ID: 177
+   * Status of compassmot calibration.
+   */
+  export interface CompassmotStatus extends Message {
+    // Throttle.
+    throttle: number // d%
+    // Current.
+    current: number // A
+    // Interference.
+    interference: number // %
+    // Motor Compensation X.
+    CompensationX: number
+    // Motor Compensation Y.
+    CompensationY: number
+    // Motor Compensation Z.
+    CompensationZ: number
+  }
+
+  /**
+   * MAVLink message ID: 178
+   * Status of secondary AHRS filter if available.
+   */
+  export interface Ahrs2 extends Message {
+    // Roll angle.
+    roll: number // rad
+    // Pitch angle.
+    pitch: number // rad
+    // Yaw angle.
+    yaw: number // rad
+    // Altitude (MSL).
+    altitude: number // m
+    // Latitude.
+    lat: number // degE7
+    // Longitude.
+    lng: number // degE7
+  }
+
+  /**
+   * MAVLink message ID: 179
+   * Camera Event.
+   */
+  export interface CameraStatus extends Message {
+    // Image timestamp (since UNIX epoch, according to camera clock).
+    time_usec: number // us
+    // System ID.
+    target_system: number
+
+    // Camera ID.
+    cam_idx: number
+
+    // Image index.
+    img_idx: number
+
+    // Event type.
+    event_id: number // CAMERA_STATUS_TYPES
+    // Parameter 1 (meaning depends on event_id, see CAMERA_STATUS_TYPES enum).
+    p1: number
+    // Parameter 2 (meaning depends on event_id, see CAMERA_STATUS_TYPES enum).
+    p2: number
+    // Parameter 3 (meaning depends on event_id, see CAMERA_STATUS_TYPES enum).
+    p3: number
+    // Parameter 4 (meaning depends on event_id, see CAMERA_STATUS_TYPES enum).
+    p4: number
+  }
+
+  /**
+   * MAVLink message ID: 180
+   * Camera Capture Feedback.
+   */
+  export interface CameraFeedback extends Message {
+    // Image timestamp (since UNIX epoch), as passed in by CAMERA_STATUS message (or autopilot if no CCB).
+    time_usec: number // us
+    // System ID.
+    target_system: number
+
+    // Camera ID.
+    cam_idx: number
+
+    // Image index.
+    img_idx: number
+
+    // Latitude.
+    lat: number // degE7
+    // Longitude.
+    lng: number // degE7
+    // Altitude (MSL).
+    alt_msl: number // m
+    // Altitude (Relative to HOME location).
+    alt_rel: number // m
+    // Camera Roll angle (earth frame, +-180).
+    roll: number // deg
+
+    // Camera Pitch angle (earth frame, +-180).
+    pitch: number // deg
+
+    // Camera Yaw (earth frame, 0-360, true).
+    yaw: number // deg
+
+    // Focal Length.
+    foc_len: number // mm
+
+    // Feedback flags.
+    flags: number // CAMERA_FEEDBACK_FLAGS
+
+    // Extensions
+    // Completed image captures.
+    completed_captures?: number
+  }
+
+  /**
+   * MAVLink message ID: 181
+   * 2nd Battery status
+   * Deprecated since 2017-04, replaced by BATTERY_STATUS
+   */
+  export interface Battery2 extends Message {
+    // Voltage.
+    voltage: number // mV
+    // Battery current, -1: autopilot does not measure the current.
+    current_battery: number // cA
+  }
+
+  /**
+   * MAVLink message ID: 182
+   * Status of third AHRS filter if available. This is for ANU research group (Ali and Sean).
+   */
+  export interface Ahrs3 extends Message {
+    // Roll angle.
+    roll: number // rad
+    // Pitch angle.
+    pitch: number // rad
+    // Yaw angle.
+    yaw: number // rad
+    // Altitude (MSL).
+    altitude: number // m
+    // Latitude.
+    lat: number // degE7
+    // Longitude.
+    lng: number // degE7
+    // Test variable1.
+    v1: number
+    // Test variable2.
+    v2: number
+    // Test variable3.
+    v3: number
+    // Test variable4.
+    v4: number
+  }
+
+  /**
+   * MAVLink message ID: 183
+   * Request the autopilot version from the system/component.
+   */
+  export interface AutopilotVersionRequest extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+  }
+
+  /**
+   * MAVLink message ID: 184
+   * Send a block of log data to remote location.
+   */
+  export interface RemoteLogDataBlock extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Log data block sequence number.
+    seqno: number // MAV_REMOTE_LOG_DATA_BLOCK_COMMANDS
+    // Log data block.
+    data: number // Array of 200 elements
+  }
+
+  /**
+   * MAVLink message ID: 185
+   * Send Status of each log block that autopilot board might have sent.
+   */
+  export interface RemoteLogBlockStatus extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Log data block sequence number.
+    seqno: number
+    // Log data block status.
+    status: number // MAV_REMOTE_LOG_DATA_BLOCK_STATUSES
+  }
+
+  /**
+   * MAVLink message ID: 186
+   * Control vehicle LEDs.
+   */
+  export interface LedControl extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Instance (LED instance to control or 255 for all LEDs).
+    instance: number
+    // Pattern (see LED_PATTERN_ENUM).
+    pattern: number
+    // Custom Byte Length.
+    custom_len: number
+    // Custom Bytes.
+    custom_bytes: number // Array of 24 elements
+  }
+
+  /**
+   * MAVLink message ID: 191
+   * Reports progress of compass calibration.
+   */
+  export interface MagCalProgress extends Message {
+    // Compass being calibrated.
+    compass_id: number
+    // Bitmask of compasses being calibrated.
+    cal_mask: number
+    // Calibration Status.
+    cal_status: number // MAG_CAL_STATUS
+    // Attempt number.
+    attempt: number
+    // Completion percentage.
+    completion_pct: number // %
+    // Bitmask of sphere sections (see http://en.wikipedia.org/wiki/Geodesic_grid).
+    completion_mask: number // Array of 10 elements
+    // Body frame direction vector for display.
+    direction_x: number
+    // Body frame direction vector for display.
+    direction_y: number
+    // Body frame direction vector for display.
+    direction_z: number
+  }
+
+  /**
+   * MAVLink message ID: 193
+   * EKF Status message including flags and variances.
+   */
+  export interface EkfStatusReport extends Message {
+    // Flags.
+    flags: BitFlag<EkfStatusFlags>
+
+    // Velocity variance.
+    velocity_variance: number
+
+    // Horizontal Position variance.
+    pos_horiz_variance: number
+    // Vertical Position variance.
+    pos_vert_variance: number
+    // Compass variance.
+    compass_variance: number
+    // Terrain Altitude variance.
+    terrain_alt_variance: number
+    // Extensions
+    // Airspeed variance.
+    airspeed_variance?: number
+  }
+
+  /**
+   * MAVLink message ID: 194
+   * PID tuning information.
+   */
+  export interface PidTuning extends Message {
+    //Axis.
+    axis: number // PID_TUNING_AXIS
+    // Desired rate.
+    desired: number
+    // Achieved rate.
+    achieved: number
+    // FF component.
+    FF: number
+    // P component.
+    P: number
+    // I component.
+    I: number
+    // D component.
+    D: number
+    // Extensions
+    // Slew rate.
+    SRate?: number
+    // P/D oscillation modifier.
+    PDmod?: number
+  }
+
+  /**
+   * MAVLink message ID: 195
+   * Deepstall path planning.
+   */
+  export interface Deepstall extends Message {
+    // Landing latitude.
+    landing_lat: number // degE7
+    // Landing longitude.
+    landing_lon: number // degE7
+    // Final heading start point, latitude.
+    path_lat: number // degE7
+    // Final heading start point, longitude.
+    path_lon: number // degE7
+    // Arc entry point, latitude.
+    arc_entry_lat: number // degE7
+    // Arc entry point, longitude.
+    arc_entry_lon: number // degE7
+    // Altitude.
+    altitude: number // m
+    // Distance the aircraft expects to travel during the deepstall.
+    expected_travel_distance: number // m
+    // Deepstall cross track error (only valid when in DEEPSTALL_STAGE_LAND).
+    cross_track_error: number // m
+    // Deepstall stage.
+    stage: number // DEEPSTALL_STAGE
+  }
+
+  /**
+   * MAVLink message ID: 200
+   * 3 axis gimbal measurements.
+   */
+  export interface GimbalReport extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Time since last update.
+    delta_time: number // s
+    // Delta angle X.
+    delta_angle_x: number // rad
+    // Delta angle Y.
+    delta_angle_y: number // rad
+    // Delta angle X.
+    delta_angle_z: number // rad
+    // Delta velocity X.
+    delta_velocity_x: number // m/s
+    // Delta velocity Y.
+    delta_velocity_y: number // m/s
+    // Delta velocity Z.
+    delta_velocity_z: number // m/s
+    // Joint ROLL.
+    joint_roll: number // rad
+    // Joint EL.
+    joint_el: number // rad
+    // Joint AZ.
+    joint_az: number // rad
+  }
+
+  /**
+   * MAVLink message ID: 201
+   * Control message for rate gimbal.
+   */
+  export interface GimbalControl extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Demanded angular rate X.
+    demanded_rate_x: number // rad/s
+    // Demanded angular rate Y.
+    demanded_rate_y: number // rad/s
+    // Demanded angular rate Z.
+    demanded_rate_z: number // rad/s
+  }
+
+  /**
+   * MAVLink message ID: 214
+   * 100 Hz gimbal torque command telemetry.
+   */
+  export interface GimbalTorqueCmdReport extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Roll Torque Command.
+    rl_torque_cmd: number
+    // Elevation Torque Command.
+    el_torque_cmd: number
+    // Azimuth Torque Command.
+    az_torque_cmd: number
+  }
+
+  /**
+   * MAVLink message ID: 215
+   * Heartbeat from a HeroBus attached GoPro.
+   */
+  export interface GoproHeartbeat extends Message {
+    // Status.
+    status: number // GOPRO_HEARTBEAT_STATUS
+    // Current capture mode.
+    capture_mode: number // GOPRO_CAPTURE_MODE
+    // Additional status bits.
+    flags: BitFlag<GoproHeartbeatFlags>
+  }
+
+  /**
+   * MAVLink message ID: 216
+   * Request a GOPRO_COMMAND response from the GoPro.
+   */
+  export interface GoproGetRequest extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Command ID.
+    cmd_id: number // GOPRO_COMMAND
+  }
+
+  /**
+   * MAVLink message ID: 217
+   * Response from a GOPRO_COMMAND get request.
+   */
+  export interface GoproGetResponse extends Message {
+    // Command ID.
+    cmd_id: number // GOPRO_COMMAND
+    // Status.
+    status: number // GOPRO_REQUEST_STATUS
+    // Value.
+    value: number // Array of 4 elements
+  }
+
+  /**
+   * MAVLink message ID: 218
+   * Request to set a GOPRO_COMMAND with a desired.
+   */
+  export interface GoproSetRequest extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Command ID.
+    cmd_id: number // GOPRO_COMMAND
+    // Value.
+    value: number // Array of 4 elements
+  }
+
+  /**
+   * MAVLink message ID: 219
+   * Response from a GOPRO_COMMAND set request.
+   */
+  export interface GoproSetResponse extends Message {
+    // Command ID.
+    cmd_id: number // GOPRO_COMMAND
+    // Status.
+    status: number // GOPRO_REQUEST_STATUS
+  }
+
+  /**
+   * MAVLink message ID: 226
+   * RPM sensor output.
+   */
+  export interface Rpm extends Message {
+    // RPM Sensor1.
+    rpm1: number
+    // RPM Sensor2.
+    rpm2: number
+  }
+
+  /**
+   * MAVLink message ID: 11000
+   * Read registers for a device.
+   */
+  export interface DeviceOpRead extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Request ID - copied to reply.
+    request_id: number
+    // The bus type.
+    bustype_: number // DEVICE_OP_BUSTYPE
+    // Bus number.
+    bus: number
+    // Bus address.
+    address: number
+    // Name of device on bus (for SPI).
+    busname: number[] // String array of 40 elements
+    // First register to read.
+    regstart: number
+    // Count of registers to read.
+    count: number
+    // Extensions
+    // Bank number.
+    bank?: number
+  }
+
+  /**
+   * MAVLink message ID: 11001
+   * Read registers reply.
+   */
+  export interface DeviceOpReadReply extends Message {
+    // Request ID - copied from request.
+    request_id: number
+    // 0 for success, anything else is failure code.
+    result: number
+    // Starting register.
+    regstart: number
+    // Count of bytes read.
+    count: number
+    // Reply data.
+    data: number // Array of 128 elements
+    // Extensions
+    // Bank number.
+    bank?: number
+  }
+
+  /**
+   * MAVLink message ID: 11002
+   * Write registers for a device.
+   */
+  export interface DeviceOpWrite extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Request ID - copied to reply.
+    request_id: number
+    // The bus type.
+    bustype_: number // DEVICE_OP_BUSTYPE
+    // Bus number.
+    bus: number
+    // Bus address.
+    address: number
+    // Name of device on bus (for SPI).
+    busname: number[] // String array of 40 elements
+    // First register to write.
+    regstart: number
+    // Count of registers to write.
+    count: number
+    // Write data.
+    data: number // Array of 128 elements
+    // Extensions
+    // Bank number.
+    bank?: number
+  }
+
+  /**
+   * MAVLink message ID: 11003
+   * Write registers reply.
+   */
+  export interface DeviceOpWriteReply extends Message {
+    // Request ID - copied from request.
+    request_id: number
+    // 0 for success, anything else is failure code.
+    result: number
+  }
+
+  /**
+   * MAVLink message ID: 11010
+   * Adaptive Controller tuning information.
+   */
+  export interface AdapTuning extends Message {
+    //Axis.
+    axis: number // PID_TUNING_AXIS
+    // Desired rate.
+    desired: number // deg/s
+    // Achieved rate.
+    achieved: number // deg/s
+    // Error between model and vehicle.
+    error: number
+    // Theta estimated state predictor.
+    theta: number
+    // Omega estimated state predictor.
+    omega: number
+    // Sigma estimated state predictor.
+    sigma: number
+    // Theta derivative.
+    theta_dot: number
+    // Omega derivative.
+    omega_dot: number
+    // Sigma derivative.
+    sigma_dot: number
+    // Projection operator value.
+    f: number
+    // Projection operator derivative.
+    f_dot: number
+    // u adaptive controlled output command.
+    u: number
+  }
+
+  /**
+   * MAVLink message ID: 11011
+   * Camera vision based attitude and position deltas.
+   */
+  export interface VisionPositionDelta extends Message {
+    // Timestamp (synced to UNIX time or since system boot).
+    time_usec: number // us
+    // Time since the last reported camera frame.
+    time_delta_usec: number // us
+    // Defines a rotation vector [roll, pitch, yaw] to the current MAV_FRAME_BODY_FRD from the previous MAV_FRAME_BODY_FRD.
+    angle_delta: number // Array of 3 elements // rad
+    // Change in position to the current MAV_FRAME_BODY_FRD from the previous FRAME_BODY_FRD rotated to the current MAV_FRAME_BODY_FRD.
+    position_delta: number // Array of 3 elements // m
+    // Normalised confidence value from 0 to 100.
+    confidence: number // %
+  }
+
+  /**
+   * MAVLink message ID: 11020
+   * Angle of Attack and Side Slip Angle.
+   */
+  export interface AoaSsa extends Message {
+    // Timestamp (since boot or Unix epoch).
+    time_usec: number // us
+    // Angle of Attack.
+    AOA: number // deg
+    // Side Slip Angle.
+    SSA: number // deg
+  }
+
+  /**
+   * MAVLink message ID: 11030
+   * ESC Telemetry Data for ESCs 1 to 4, matching data sent by BLHeli ESCs.
+   */
+  export interface EscTelemetry1To4 extends Message {
+    // Temperature.
+    temperature: number // Array of 4 elements // degC
+    // Voltage.
+    voltage: number // Array of 4 elements // cV
+    // Current.
+    current: number // Array of 4 elements // cA
+    // Total current.
+    totalcurrent: number // Array of 4 elements // mAh
+    // RPM (eRPM).
+    rpm: number // Array of 4 elements // rpm
+    // count of telemetry packets received (wraps at 65535).
+    count: number // Array of 4 elements
+  }
+
+  /**
+   * MAVLink message ID: 11031
+   * ESC Telemetry Data for ESCs 5 to 8, matching data sent by BLHeli ESCs.
+   */
+  export interface EscTelemetry5To8 extends Message {
+    // Temperature.
+    temperature: number // Array of 4 elements // degC
+    // Voltage.
+    voltage: number // Array of 4 elements // cV
+    // Current.
+    current: number // Array of 4 elements // cA
+    // Total current.
+    totalcurrent: number // Array of 4 elements // mAh
+    // RPM (eRPM).
+    rpm: number // Array of 4 elements // rpm
+    // count of telemetry packets received (wraps at 65535).
+    count: number // Array of 4 elements
+  }
+
+  /**
+   * MAVLink message ID: 11032
+   * ESC Telemetry Data for ESCs 9 to 12, matching data sent by BLHeli ESCs.
+   */
+  export interface EscTelemetry9To12 extends Message {
+    // Temperature.
+    temperature: number // Array of 4 elements // degC
+    // Voltage.
+    voltage: number // Array of 4 elements // cV
+    // Current.
+    current: number // Array of 4 elements // cA
+    // Total current.
+    totalcurrent: number // Array of 4 elements // mAh
+    // RPM (eRPM).
+    rpm: number // Array of 4 elements // rpm
+    // count of telemetry packets received (wraps at 65535).
+    count: number // Array of 4 elements
+  }
+
+  /**
+   * MAVLink message ID: 11033
+   * Configure an OSD parameter slot.
+   */
+  export interface OsdParamConfig extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Request ID - copied to reply.
+    request_id: number
+    // OSD parameter screen index.
+    osd_screen: number
+    // OSD parameter display index.
+    osd_index: number
+    // Onboard parameter id, terminated by NULL if the length is less than 16 human-readable chars and WITHOUT null termination (NULL) byte if the length is exactly 16 chars - applications have to provide 16+1 bytes storage if the ID is stored as string
+    param_id: number[] // String array of 16 elements
+    // Config type.
+    config_type_: number // OSD_PARAM_CONFIG_TYPE
+    // OSD parameter minimum value.
+    min_value: number
+    // OSD parameter maximum value.
+    max_value: number
+    // OSD parameter increment.
+    increment: number
+  }
+
+  /**
+   * MAVLink message ID: 11034
+   * Configure OSD parameter reply.
+   */
+  export interface OsdParamConfigReply extends Message {
+    // Request ID - copied from request.
+    request_id: number
+    // Config error type.
+    result: number // OSD_PARAM_CONFIG_ERROR
+  }
+
+  /**
+   * MAVLink message ID: 11035
+   * Read a configured an OSD parameter slot.
+   */
+  export interface OsdParamShowConfig extends Message {
+    // System ID.
+    target_system: number
+    // Component ID.
+    target_component: number
+    // Request ID - copied to reply.
+    request_id: number
+    // OSD parameter screen index.
+    osd_screen: number
+    // OSD parameter display index.
+    osd_index: number
+  }
+
+  /**
+   * MAVLink message ID: 11036
+   * Read configured OSD parameter reply.
+   */
+  export interface OsdParamShowConfigReply extends Message {
+    // Request ID - copied from request.
+    request_id: number
+    // Config error type.
+    result: number // OSD_PARAM_CONFIG_ERROR
+    // Onboard parameter id, terminated by NULL if the length is less than 16 human-readable chars and WITHOUT null termination (NULL) byte if the length is exactly 16 chars - applications have to provide 16+1 bytes storage if the ID is stored as string
+    param_id: number[] // String array of 16 elements
+    // Config type.
+    config_type_: number // OSD_PARAM_CONFIG_TYPE
+    // OSD parameter minimum value.
+    min_value: number
+    // OSD parameter maximum value.
+    max_value: number
+    // OSD parameter increment.
+    increment: number
+  }
+
+  /**
+   * MAVLink message ID: 11037
+   * Obstacle located as a 3D vector.
+   */
+  export interface ObstacleDistance3d extends Message {
+    // Timestamp (time since system boot).
+    time_boot_ms: number // ms
+    // Class id of the distance sensor type.
+    sensor_type_: number // MAV_DISTANCE_SENSOR
+    // Coordinate frame of reference.
+    frame: number // MAV_FRAME
+    //  Unique ID given to each obstacle so that its movement can be tracked. Use UINT16_MAX if object ID is unknown or cannot be determined.
+    obstacle_id: number
+    //  X position of the obstacle.
+    x: number // m
+    //  Y position of the obstacle.
+    y: number // m
+    //  Z position of the obstacle.
+    z: number // m
+    // Minimum distance the sensor can measure.
+    min_distance: number // m
+    // Maximum distance the sensor can measure.
+    max_distance: number // m
+  }
+
+  /**
+   * MAVLink message ID: 11038
+   * Water depth
+   */
+  export interface WaterDepth extends Message {
+    // Timestamp (time since system boot)
+    time_boot_ms: number // ms
+    // Onboard ID of the sensor
+    id: number
+    // Sensor data healthy (0=unhealthy, 1=healthy)
+    healthy: number
+    // Latitude
+    lat: number // degE7
+    // Longitude
+    lng: number // degE7
+    // Altitude (MSL) of vehicle
+    alt: number // m
+    // Roll angle
+    roll: number // rad
+    // Pitch angle
+    pitch: number // rad
+    // Yaw angle
+    yaw: number // rad
+    // Distance (uncorrected)
+    distance: number // m
+    // Water temperature
+    temperature: number // degC
+  }
+
+  /**
+   * MAVLink message ID: 11039
+   * The MCU status, giving MCU temperature and voltage. The min and max voltages are to allow for detecting power supply instability.
+   */
+  export interface McuStatus extends Message {
+    // MCU instance
+    id: number
+    // MCU Internal temperature
+    MCU_temperature: number // cdegC
+    // MCU voltage
+    MCU_voltage: number // mV
+    // MCU voltage minimum
+    MCU_voltage_min: number // mV
+    // MCU voltage maximum
+    MCU_voltage_max: number // mV
   }
 }
