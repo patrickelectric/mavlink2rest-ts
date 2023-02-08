@@ -185,7 +185,7 @@ export enum MavGoto {
 
 export enum LimitModule {
   // Pre-initialization.
-  LIMIT_GPSLOCK	= 1,
+  LIMIT_GPSLOCK = 1,
   // Disabled.
   LIMIT_GEOFENCE = 2,
   // Checking limits.
