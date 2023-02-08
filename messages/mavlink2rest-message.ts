@@ -5730,7 +5730,7 @@ export namespace Message {
     /**
      * Camera definition URI (if any, otherwise only basic functions will be available). HTTP- (http://) and MAVLink FTP- (mavlinkftp://) formatted URIs are allowed (and both must be supported by any GCS that implements the Camera Protocol)..
      */
-    cam_definition_uri: number[] // String as array of 140 chars
+    cam_definition_uri: string[] // String as array of 140 chars
   }
 
   /**
