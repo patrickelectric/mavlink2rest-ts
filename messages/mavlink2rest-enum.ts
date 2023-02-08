@@ -183,6 +183,55 @@ export enum MavGoto {
   MAV_GOTO_HOLD_AT_SPECIFIED_POSITION = 'MAV_GOTO_HOLD_AT_SPECIFIED_POSITION',
 }
 
+export enum LimitModule {
+  // Pre-initialization.
+  LIMIT_GPSLOCK	= 1,
+  // Disabled.
+  LIMIT_GEOFENCE = 2,
+  // Checking limits.
+  LIMIT_ALTITUDE = 4,
+}
+
+export enum RallyFlags {
+  // Flag set when requiring favorable winds for landing.
+  FAVORABLE_WIND = 1,
+  // Flag set when plane is to immediately descend to break altitude and land without GCS intervention. Flag not set when plane is to loiter at Rally point until commanded to land.
+  LAND_IMMEDIATELY = 2,
+}
+
+/**
+ * Flags in EKF_STATUS message.
+ */
+export enum EkfStatusFlags {
+  // Set if EKF's attitude estimate is good.
+  EKF_ATTITUDE = 1,
+  // Set if EKF's horizontal velocity estimate is good.
+  EKF_VELOCITY_HORIZ = 2,
+  // Set if EKF's vertical velocity estimate is good.
+  EKF_VELOCITY_VERT = 4,
+  // Set if EKF's horizontal position (relative) estimate is good.
+  EKF_POS_HORIZ_REL = 8,
+  // Set if EKF's horizontal position (absolute) estimate is good.
+  EKF_POS_HORIZ_ABS = 16,
+  // Set if EKF's vertical position (absolute) estimate is good.
+  EKF_POS_VERT_ABS = 32,
+  // Set if EKF's vertical position (above ground) estimate is good.
+  EKF_POS_VERT_AGL = 64,
+  // EKF is in constant position mode and does not know it's absolute or relative position.
+  EKF_CONST_POS_MODE = 128,
+  // Set if EKF's predicted horizontal position (relative) estimate is good.
+  EKF_PRED_POS_HORIZ_REL = 256,
+  // Set if EKF's predicted horizontal position (absolute) estimate is good.
+  EKF_PRED_POS_HORIZ_ABS = 512,
+  // Set if EKF has never been healthy.
+  EKF_UNINITIALIZED = 1024,
+}
+
+export enum GoproHeartbeatFlags {
+  // GoPro is currently recording.
+  GOPRO_FLAG_RECORDING = 1
+}
+
 /**
  * These encode the sensors whose status is sent as part of the SYS_STATUS message.
  */
