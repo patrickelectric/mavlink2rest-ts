@@ -1044,7 +1044,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1071,7 +1071,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1126,7 +1126,7 @@ export namespace Message {
     /**
      * The coordinate system of the waypoint..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
     /**
      * false:0, true:1.
      */
@@ -1138,7 +1138,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1161,7 +1161,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1210,7 +1210,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1233,7 +1233,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1252,7 +1252,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1282,11 +1282,11 @@ export namespace Message {
     /**
      * Mission result..
      */
-    mavtype: MavMissionResult
+    mavtype: Type<MavMissionResult>
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1402,7 +1402,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1429,7 +1429,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -1472,7 +1472,7 @@ export namespace Message {
     /**
      * Coordinate frame. Can be either global, GPS, right-handed with Z axis up or local, right handed, Z axis down..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
   }
 
   /**
@@ -1507,7 +1507,7 @@ export namespace Message {
     /**
      * Coordinate frame. Can be either global, GPS, right-handed with Z axis up or local, right handed, Z axis down..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
   }
 
   /**
@@ -1989,7 +1989,7 @@ export namespace Message {
     /**
      * The coordinate system of the waypoint..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
     /**
      * false:0, true:1.
      */
@@ -2001,7 +2001,7 @@ export namespace Message {
     /**
      * Mission type..
      */
-    mission_type: MavMissionType
+    mission_type: Type<MavMissionType>
   }
 
   /**
@@ -2083,7 +2083,7 @@ export namespace Message {
     /**
      * The coordinate system of the COMMAND..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
     /**
      * false:0, true:1.
      */
@@ -2376,7 +2376,7 @@ export namespace Message {
     /**
      * Valid options are: MAV_FRAME_LOCAL_NED = 1, MAV_FRAME_LOCAL_OFFSET_NED = 7, MAV_FRAME_BODY_NED = 8, MAV_FRAME_BODY_OFFSET_NED = 9.
      */
-    coordinate_frame: MavFrame
+    coordinate_frame: Type<MavFrame>
   }
 
   /**
@@ -2439,7 +2439,7 @@ export namespace Message {
     /**
      * Valid options are: MAV_FRAME_LOCAL_NED = 1, MAV_FRAME_LOCAL_OFFSET_NED = 7, MAV_FRAME_BODY_NED = 8, MAV_FRAME_BODY_OFFSET_NED = 9.
      */
-    coordinate_frame: MavFrame
+    coordinate_frame: Type<MavFrame>
   }
 
   /**
@@ -2510,7 +2510,7 @@ export namespace Message {
     /**
      * Valid options are: MAV_FRAME_GLOBAL_INT = 5, MAV_FRAME_GLOBAL_RELATIVE_ALT_INT = 6, MAV_FRAME_GLOBAL_TERRAIN_ALT_INT = 11.
      */
-    coordinate_frame: MavFrame
+    coordinate_frame: Type<MavFrame>
   }
 
   /**
@@ -2573,7 +2573,7 @@ export namespace Message {
     /**
      * Valid options are: MAV_FRAME_GLOBAL_INT = 5, MAV_FRAME_GLOBAL_RELATIVE_ALT_INT = 6, MAV_FRAME_GLOBAL_TERRAIN_ALT_INT = 11.
      */
-    coordinate_frame: MavFrame
+    coordinate_frame: Type<MavFrame>
   }
 
   /**
@@ -4723,7 +4723,7 @@ export namespace Message {
     /**
      * Coordinate frame used for following fields..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
     /**
      * X Position of the landing target in MAV_FRAME.
      */
@@ -6788,7 +6788,7 @@ export namespace Message {
     /**
      * Coordinate frame of reference for the yaw rotation and offset of the sensor data. Defaults to MAV_FRAME_GLOBAL, which is north aligned. For body-mounted sensors
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
   }
 
   /**
@@ -7214,7 +7214,7 @@ export namespace Message {
     /**
      * The coordinate system of the fields: x, y, z..
      */
-    frame: MavFrame
+    frame: Type<MavFrame>
   }
 
   /**
